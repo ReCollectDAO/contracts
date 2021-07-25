@@ -1,5 +1,5 @@
 #include "proposal.mligo"
 
-let dao_contract (p, s : parameter * storage) : return =
-  match p with
-  | Create c -> createProposal (c,s)
+let dao_contract (parameter, store : parameter * storage) : return =
+  match parameter with
+  | Create title -> createProposal (title,store)

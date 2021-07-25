@@ -1,12 +1,15 @@
 type proposal = {
-  key : bytes;
-  title : string;
+  key: bytes;
+  title: string;
+  votes: nat;
+  start: timestamp;
+  state: string;
 }
 
 type proposal_set = (bytes, proposal) big_map
 
 type storage = {
-  proposals : proposal_set
+  proposals: proposal_set
 }
 
 type parameter =
@@ -14,11 +17,16 @@ type parameter =
 
 type return = operation list * storage
 
-let createProposal (p, s : string * storage) : return =
-  let pkey = Crypto.blake2b (Bytes.pack p) in
-  let proposal : proposal =
-    {key = pkey; title = p} in
+let createProposal (title, store : string * storage): return =
+  let proposalKey = Crypto.blake2b (Bytes.pack title) in
+  let proposal: proposal = {
+      key = proposalKey;
+      title = title;
+      votes = 0n;
+      start = Tezos.now;
+      state = "DRAFT"
+    } in
   let updated_map: proposal_set =
-    Big_map.update pkey (Some proposal) s.proposals in
-  let s = {s with proposals = updated_map}
-  in ([] : operation list), s
+    Big_map.update proposalKey (Some proposal) store.proposals in
+  let store = {store with proposals = updated_map}
+  in ([] : operation list), store
